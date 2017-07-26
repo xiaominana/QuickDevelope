@@ -23,7 +23,22 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+-(UIViewController *)popViewControllerAnimated:(BOOL)animated
+{
+    //该方法为了处理部分界面，返回之前没有回收键盘和处理
+    [[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];
+    return [super popViewControllerAnimated:animated];
+}
 
+-(UIStatusBarStyle)preferredStatusBarStyle
+{
+    
+    return UIStatusBarStyleLightContent;
+}
+- (UIViewController *)childViewControllerForStatusBarStyle
+{
+    return self.topViewController;
+}
 /*
 #pragma mark - Navigation
 

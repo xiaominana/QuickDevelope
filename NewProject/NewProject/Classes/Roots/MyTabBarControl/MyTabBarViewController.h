@@ -10,4 +10,8 @@
 
 @interface MyTabBarViewController : UITabBarController
 
+/*
+ * 初始化ViewControllers
+ */
+-(void)initViewControllers;
 @end
