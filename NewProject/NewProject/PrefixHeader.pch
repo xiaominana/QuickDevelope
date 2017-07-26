@@ -1,0 +1,33 @@
+//
+//  PrefixHeader.pch
+//  NewProject
+//
+//  Created by huangliru on 2017/7/25.
+//  Copyright © 2017年 huangliru. All rights reserved.
+//
+
+
+#ifdef __OBJC__
+
+#import "AppDelegate.h"
+#import "AppMacro.h"
+#import "BMDefine.h"
+#import "AppKeyDefine.h"
+#import "AppNotificationDefine.h"
+#import "RootViewController.h"
+
+#endif
+
+#ifdef DEBUG
+#define isDev   1
+#else
+#define isDev   0
+#endif
+
+#ifdef DEBUG
+#define NSLog(format, ...) printf("\n[%s] %s [第%d行] %s\n", __TIME__, __FUNCTION__, __LINE__, [[NSString stringWithFormat:format, ## __VA_ARGS__] UTF8String]);
+#else
+#define NSLog(format, ...)
+#endif
+
+#define DebugLog(s, ...) NSLog(@"%s(%d): %@", __FUNCTION__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__])
