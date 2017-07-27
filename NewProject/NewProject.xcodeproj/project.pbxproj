@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2FFA9BD51F29D5FD00767CF3 /* QDCommonCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FFA9BD41F29D5FD00767CF3 /* QDCommonCode.m */; };
 		BE3F8FE5846947BFDBD04EBC /* libPods-NewProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F56F83DD2BAAA03A6127D199 /* libPods-NewProject.a */; };
 		EB077DA81F26D28B008C58DE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB077DA71F26D28B008C58DE /* main.m */; };
 		EB077DAB1F26D28B008C58DE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EB077DAA1F26D28B008C58DE /* AppDelegate.m */; };
@@ -56,6 +57,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2FFA9BD31F29D5FD00767CF3 /* QDCommonCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QDCommonCode.h; sourceTree = "<group>"; };
+		2FFA9BD41F29D5FD00767CF3 /* QDCommonCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QDCommonCode.m; sourceTree = "<group>"; };
 		72AAB54A89EA493B73539996 /* Pods-NewProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NewProject.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NewProject/Pods-NewProject.debug.xcconfig"; sourceTree = "<group>"; };
 		D268A1DBC69E0EC846FE48B9 /* Pods-NewProject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NewProject.release.xcconfig"; path = "Pods/Target Support Files/Pods-NewProject/Pods-NewProject.release.xcconfig"; sourceTree = "<group>"; };
 		EB077DA31F26D28B008C58DE /* NewProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NewProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -272,6 +275,8 @@
 			children = (
 				EB077E0E1F26F708008C58DE /* DBHelper.h */,
 				EB077E0F1F26F708008C58DE /* DBHelper.m */,
+				2FFA9BD31F29D5FD00767CF3 /* QDCommonCode.h */,
+				2FFA9BD41F29D5FD00767CF3 /* QDCommonCode.m */,
 			);
 			path = "Common(公共方法)";
 			sourceTree = "<group>";
@@ -676,6 +681,7 @@
 			files = (
 				EB077E061F26F681008C58DE /* NSArray+Abnormal.m in Sources */,
 				EB077E0A1F26F681008C58DE /* UIImage+CircleImage.m in Sources */,
+				2FFA9BD51F29D5FD00767CF3 /* QDCommonCode.m in Sources */,
 				EB077E1A1F2718BB008C58DE /* NetAPIRequest.m in Sources */,
 				EB077E091F26F681008C58DE /* UIButton+AttributeString.m in Sources */,
 				EB077E271F272199008C58DE /* MBProgressHUD+MJ.m in Sources */,
