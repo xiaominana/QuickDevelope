@@ -60,7 +60,9 @@ static MBProgressHUD *hud = nil;
     // 隐藏时候从父控件中移除
     hud.removeFromSuperViewOnHide = YES;
     // YES代表需要蒙版效果
-    hud.dimBackground = YES;
+//    hud.dimBackground = YES;
+    hud.backgroundView.style = MBProgressHUDBackgroundStyleSolidColor;
+    hud.backgroundView.color = [UIColor colorWithWhite:0.f alpha:.2f];
      [hud hideAnimated:YES afterDelay:1.f];
     return hud;
 }
@@ -74,7 +76,9 @@ static MBProgressHUD *hud = nil;
     // 隐藏时候从父控件中移除
     hud.removeFromSuperViewOnHide = YES;
     // YES代表需要蒙版效果
-    hud.dimBackground = YES;
+//    hud.dimBackground = YES;
+    hud.backgroundView.style = MBProgressHUDBackgroundStyleSolidColor;
+    hud.backgroundView.color = [UIColor colorWithWhite:0.f alpha:.2f];
     [hud hideAnimated:YES afterDelay:3.f];
     return hud;
 }

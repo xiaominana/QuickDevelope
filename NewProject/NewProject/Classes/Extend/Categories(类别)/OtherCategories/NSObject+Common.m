@@ -66,7 +66,7 @@
     if (tipStr && tipStr.length > 0) {
         [self getProgressHUD].hidden = NO;
 //        [self getProgressHUD].mode = MBProgressHUDModeText;
-        [self getProgressHUD].labelText = tipStr;
+        [self getProgressHUD].label.text = tipStr;
         [self getProgressHUD].mode = MBProgressHUDModeDeterminate;
         [self getProgressHUD].margin = 10.f;
         [self getProgressHUD].removeFromSuperViewOnHide = YES;

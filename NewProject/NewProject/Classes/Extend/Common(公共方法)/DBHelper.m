@@ -13,8 +13,6 @@ static id _instance;
 
 @interface DBHelper()<UIAlertViewDelegate>
 
-
-
 @end
 
 @implementation DBHelper
@@ -122,15 +120,14 @@ static id _instance;
 }
 
 
-
-void TTAlertNoTitle(NSString* message) {
-    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:nil
-                                                    message:message
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];
-}
+//void TTAlertNoTitle(NSString* message) {
+//    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:nil
+//                                                    message:message
+//                                                   delegate:nil
+//                                          cancelButtonTitle:@"OK"
+//                                          otherButtonTitles:nil];
+//    [alert show];
+//}
 
 
 #pragma mark - 验证手机号码和电话号码的正则表达式
