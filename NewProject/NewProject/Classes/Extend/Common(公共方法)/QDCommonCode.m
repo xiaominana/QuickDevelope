@@ -7,12 +7,21 @@
 //
 
 #import "QDCommonCode.h"
+#import <UIKit/UIKit.h>
 
 @implementation QDCommonCode
 
 #pragma mark - UIView
 
 UIView * view;
+
+#pragma mark - UIView常用属性
++(UIView *)createViewWithFrame:(CGRect)frame backgroundColor:(UIColor *)backgroundColor
+{
+    UIView * view = [[UIView alloc]initWithFrame:frame];
+    view.backgroundColor = backgroundColor;
+    return view;
+}
 
 #pragma mark - 将一个view保存为pdf格式
 - (void)createPDFfromUIView:(UIView*)aView saveToDocumentsWithFileName:(NSString*)aFilename
@@ -48,25 +57,16 @@ UIView * view;
 }
 
 #pragma mark - 为UIView的某个方向添加边框
-/**
- 边框方向
- 
- - WZBBorderDirectionTop: 顶部
- - WZBBorderDirectionLeft: 左边
- - WZBBorderDirectionBottom: 底部
- - WZBBorderDirectionRight: 右边
- */
-
+//边框方向
 typedef NS_ENUM(NSInteger, WZBBorderDirectionType) {
-    WZBBorderDirectionTop = 0,
-    WZBBorderDirectionLeft,
-    WZBBorderDirectionBottom,
-    WZBBorderDirectionRight
+    WZBBorderDirectionTop = 0,  //顶部
+    WZBBorderDirectionLeft,     //左边
+    WZBBorderDirectionBottom,   //底部
+    WZBBorderDirectionRight     //右边
 };
 
 /**
  为UIView的某个方向添加边框
- 
  @param direction 边框方向
  @param color 边框颜色
  @param width 边框宽度
@@ -103,7 +103,7 @@ typedef NS_ENUM(NSInteger, WZBBorderDirectionType) {
     [view.layer addSublayer:border];
 }
 
-#pragma mark - 约束如何做UIView动画？
+#pragma mark - 约束如何做UIView动画
 /*
 1、把需要改的约束Constraint拖条线出来，成为属性
 2、在需要动画的地方加入代码，改变此属性的constant属性
@@ -362,6 +362,169 @@ UILabel * label;
     [super drawTextInRect:rect];
 }
  */
+
+#pragma mark - UIImageView
+
+UIImageView * imageView;
+
+#pragma mark - UIImageView常用属性
++(UIImageView *)createimageViewWithFrame:(CGRect)frame image:(UIImage *)image contentMode:(UIViewContentMode)contentMode cornerRadius:(CGFloat)cornerRadius
+{
+    UIImageView * imageView = [[UIImageView alloc]initWithFrame:frame];
+    imageView.image = image;
+    imageView.contentMode = contentMode;
+    imageView.layer.cornerRadius = cornerRadius;
+    return imageView;
+}
+
+#pragma mark - 根据bundle中的图片名创建imageview
+
++ (UIImageView *)imageViewWithImageNamed:(NSString*)imageName
+{
+    return [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
+}
+
+#pragma mark - 播放一张张连续的图片
+-(void)playImages
+{
+    // 加入现在有三张图片分别为animate_1、animate_2、animate_3
+    // 方法一
+    imageView.animationImages = @[[UIImage imageNamed:@"animate_1"], [UIImage imageNamed:@"animate_2"], [UIImage imageNamed:@"animate_3"]];
+    imageView.animationDuration = 1.0;
+    // 方法二
+    imageView.image = [UIImage animatedImageNamed:@"animate_" duration:1.0];
+    // 方法二解释下，这个方法会加载animate_为前缀的，后边0-1024，也就是animate_0、animate_1一直到animate_1024
+}
+
+#pragma mark - 防止离屏渲染为image添加圆角
+// image分类
+- (UIImage *)circleImage:(UIImage *)image
+{
+    // NO代表透明
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, 1);
+    // 获得上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    // 添加一个圆
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    // 方形变圆形
+    CGContextAddEllipseInRect(ctx, rect);
+    // 裁剪
+    CGContextClip(ctx);
+    // 将图片画上去
+    [image drawInRect:rect];
+    UIImage * newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+#pragma mark - 设置UIImage的透明度
+// 方法一、添加UIImage分类
+- (UIImage *)imageByApplyingAlpha:(CGFloat) alpha image:(UIImage *)image{
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, 0.0f);
+    
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGRect area = CGRectMake(0, 0, image.size.width, image.size.height);
+    
+    CGContextScaleCTM(ctx, 1, -1);
+    CGContextTranslateCTM(ctx, 0, -area.size.height);
+    
+    CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
+    
+    CGContextSetAlpha(ctx, alpha);
+    
+    CGContextDrawImage(ctx, area, image.CGImage);
+    
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+// 方法二、如果没有奇葩需求，干脆用UIImageView设置透明度
+-(void)insertAlpha
+{
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"yourImage"]];
+    imageView.alpha = 0.5;
+}
+
+
+#pragma mark - 为imageView添加倒影
+-(void)addReflectionForImageView:(UIImageView *)imageView
+{
+    CGRect frame = imageView.frame;
+    frame.origin.y += (frame.size.height + 1);
+
+    UIImageView *reflectionImageView = [[UIImageView alloc] initWithFrame:frame];
+    imageView.clipsToBounds = TRUE;
+    reflectionImageView.contentMode = imageView.contentMode;
+    [reflectionImageView setImage:imageView.image];
+    reflectionImageView.transform = CGAffineTransformMakeScale(1.0, -1.0);
+
+    CALayer *reflectionLayer = [reflectionImageView layer];
+
+    CAGradientLayer *gradientLayer = [CAGradientLayer layer];
+    gradientLayer.bounds = reflectionLayer.bounds;
+    gradientLayer.position = CGPointMake(reflectionLayer.bounds.size.width / 2, reflectionLayer.bounds.size.height * 0.5);
+    gradientLayer.colors = [NSArray arrayWithObjects:
+                            (id)[[UIColor clearColor] CGColor],
+                            (id)[[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.3] CGColor], nil];
+
+    gradientLayer.startPoint = CGPointMake(0.5,0.5);
+    gradientLayer.endPoint = CGPointMake(0.5,1.0);
+    reflectionLayer.mask = gradientLayer;
+
+    [imageView.superview addSubview:reflectionImageView];
+}
+
+#pragma mark - 修改image颜色
+-(void)insertImageColor
+{
+    UIImage *image = [UIImage imageNamed:@"test"];
+    imageView.image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextClipToMask(context, rect, image.CGImage);
+    CGContextSetFillColorWithColor(context, [[UIColor redColor] CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    UIImage *flippedImage = [UIImage imageWithCGImage:img.CGImage scale:1.0 orientation: UIImageOrientationDownMirrored];
+    imageView.image = flippedImage;
+}
+
+#pragma mark - 加载gif图片
+//推荐使用这个框架 FLAnimatedImage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
