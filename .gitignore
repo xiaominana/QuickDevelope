@@ -3,3 +3,6 @@
 NewProject/NewProject.xcworkspace/xcuserdata/huangliru.xcuserdatad/UserInterfaceState.xcuserstate
 NewProject/NewProject.xcworkspace/xcuserdata/huangliru.xcuserdatad/UserInterfaceState.xcuserstate
 *.xcuserstate
+*.plist
+*.xcscheme
+NewProject/.DS_Store
