@@ -6,12 +6,17 @@
 //  Copyright © 2017年 huangliru. All rights reserved.
 //
 
+/*
+    记住,任何已有的方案永远都不适用
+    只要你有一秒的停顿,你就落后一秒
+ */
+
 #import "QDCommonCode.h"
 #import <UIKit/UIKit.h>
 
 @implementation QDCommonCode
 
-#pragma mark - UIView
+#pragma mark - ************ UIView ************
 
 UIView * view;
 
@@ -181,8 +186,29 @@ self.buttonTopConstraint.constant = 100;
     }
 }
 
+#pragma mark - 给一个view截图
+-(UIImage *)screehshotForView:(UIView *)view
+{
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, 0.0);
+    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
 
-#pragma mark - UILabel
+- (UIImage *)screenshot
+{
+    UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0.0);
+    
+    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return screenshot;
+}
+
+
+#pragma mark - ************ UILabel ************
 
 UILabel * label;
 
@@ -363,7 +389,7 @@ UILabel * label;
 }
  */
 
-#pragma mark - UIImageView
+#pragma mark - ************ UIImageView ************
 
 UIImageView * imageView;
 
@@ -395,58 +421,6 @@ UIImageView * imageView;
     imageView.image = [UIImage animatedImageNamed:@"animate_" duration:1.0];
     // 方法二解释下，这个方法会加载animate_为前缀的，后边0-1024，也就是animate_0、animate_1一直到animate_1024
 }
-
-#pragma mark - 防止离屏渲染为image添加圆角
-// image分类
-- (UIImage *)circleImage:(UIImage *)image
-{
-    // NO代表透明
-    UIGraphicsBeginImageContextWithOptions(image.size, NO, 1);
-    // 获得上下文
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    // 添加一个圆
-    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
-    // 方形变圆形
-    CGContextAddEllipseInRect(ctx, rect);
-    // 裁剪
-    CGContextClip(ctx);
-    // 将图片画上去
-    [image drawInRect:rect];
-    UIImage * newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
-}
-
-#pragma mark - 设置UIImage的透明度
-// 方法一、添加UIImage分类
-- (UIImage *)imageByApplyingAlpha:(CGFloat) alpha image:(UIImage *)image{
-    UIGraphicsBeginImageContextWithOptions(image.size, NO, 0.0f);
-    
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGRect area = CGRectMake(0, 0, image.size.width, image.size.height);
-    
-    CGContextScaleCTM(ctx, 1, -1);
-    CGContextTranslateCTM(ctx, 0, -area.size.height);
-    
-    CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
-    
-    CGContextSetAlpha(ctx, alpha);
-    
-    CGContextDrawImage(ctx, area, image.CGImage);
-    
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    
-    return newImage;
-}
-// 方法二、如果没有奇葩需求，干脆用UIImageView设置透明度
--(void)insertAlpha
-{
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"yourImage"]];
-    imageView.alpha = 0.5;
-}
-
 
 #pragma mark - 为imageView添加倒影
 -(void)addReflectionForImageView:(UIImageView *)imageView
@@ -498,18 +472,566 @@ UIImageView * imageView;
 //推荐使用这个框架 FLAnimatedImage
 
 
+#pragma mark - ************ UIImage ************
+
+UIImage * image;
+
+#pragma mark - 获取图片资源
+#define GetUIImage(imageName) [UIImage imageNamed:[NSString stringWithFormat:@"%@",imageName]]
 
 
+#pragma mark - 防止离屏渲染为image添加圆角 image圆角
+// image分类
+- (UIImage *)circleImage:(UIImage *)image
+{
+    // NO代表透明
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, 1);
+    // 获得上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    // 添加一个圆
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    // 方形变圆形
+    CGContextAddEllipseInRect(ctx, rect);
+    // 裁剪
+    CGContextClip(ctx);
+    // 将图片画上去
+    [image drawInRect:rect];
+    UIImage * newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+#pragma mark - image拉伸
++ (UIImage *)resizableImage:(NSString *)imageName
+{
+    UIImage *image = [UIImage imageNamed:imageName];
+    CGFloat imageW = image.size.width;
+    CGFloat imageH = image.size.height;
+    return [image resizableImageWithCapInsets:UIEdgeInsetsMake(imageH * 0.5, imageW * 0.5, imageH * 0.5, imageW * 0.5) resizingMode:UIImageResizingModeStretch];
+}
+
+#pragma mark - 设置UIImage的透明度
+// 方法一、添加UIImage分类
+- (UIImage *)imageByApplyingAlpha:(CGFloat) alpha image:(UIImage *)image{
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, 0.0f);
+    
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGRect area = CGRectMake(0, 0, image.size.width, image.size.height);
+    
+    CGContextScaleCTM(ctx, 1, -1);
+    CGContextTranslateCTM(ctx, 0, -area.size.height);
+    
+    CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
+    
+    CGContextSetAlpha(ctx, alpha);
+    
+    CGContextDrawImage(ctx, area, image.CGImage);
+    
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+// 方法二、如果没有奇葩需求，干脆用UIImageView设置透明度
+-(void)insertAlpha
+{
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"yourImage"]];
+    imageView.alpha = 0.5;
+}
+
+#pragma mark - 保存 UIImage 到本地
+-(void)saveImageLocation:(UIImage *)image fileName:(NSString *)fileName/*加后缀如:@"ImageName.png",保存为 PNG 格式*/
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *filePath = [[paths objectAtIndex:0] stringByAppendingPathComponent:fileName];
+    [UIImagePNGRepresentation(image) writeToFile:filePath atomically:YES];
+}
+
+#pragma mark 在image上绘制文字并生成新的image
+-(UIImage *)drawText:(NSString *)text onImage:(UIImage *)image
+{
+    //字体
+    UIFont *font = [UIFont boldSystemFontOfSize:12];
+    UIGraphicsBeginImageContext(image.size);
+    //绘制 image
+    [image drawInRect:CGRectMake(0,0,image.size.width,image.size.height)];
+    //定义文字的位置
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    [[UIColor whiteColor] set];
+    [text drawInRect:CGRectIntegral(rect) withFont:font];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+#pragma mark - 比较两个UIImage是否相等
+- (BOOL)image:(UIImage *)image1 isEqualTo:(UIImage *)image2
+{
+    NSData *data1 = UIImagePNGRepresentation(image1);
+    NSData *data2 = UIImagePNGRepresentation(image2);
+    
+    return [data1 isEqual:data2];
+}
+
+#pragma mark - 取图片某一点的颜色
+- (UIColor *)colorForPoint:(CGPoint)point inImage:(CGImageRef)CGImage
+{
+    if (point.x < 0 || point.y < 0) return nil;
+
+    CGImageRef imageRef = CGImage;
+    NSUInteger width = CGImageGetWidth(imageRef);
+    NSUInteger height = CGImageGetHeight(imageRef);
+    
+    if (point.x >= width || point.y >= height) return nil;
+
+    unsigned char *rawData = malloc(height * width * 4);
+    
+    if (!rawData) return nil;
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    NSUInteger bytesPerPixel = 4;
+    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bitsPerComponent = 8;
+    CGContextRef context = CGBitmapContextCreate(rawData,
+                                                 width,
+                                                 height,
+                                                 bitsPerComponent,
+                                                 bytesPerRow,
+                                                 colorSpace,
+                                                 kCGImageAlphaPremultipliedLast
+                                                 | kCGBitmapByteOrder32Big);
+    if (!context)
+    {
+        free(rawData);
+        return nil;
+    }
+    CGColorSpaceRelease(colorSpace);
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    CGContextRelease(context);
+
+    int byteIndex = (bytesPerRow * point.y) + point.x * bytesPerPixel;
+    CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
+    CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
+    CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
+    CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
+
+    UIColor *result = nil;
+    result = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+    free(rawData);
+    return result;
+}
+
+#pragma mark - 判断该图片是否有透明度通道
+- (BOOL)hasAlphaChannelWithImage:(CGImageRef)CGImage
+{
+    CGImageAlphaInfo alpha = CGImageGetAlphaInfo(CGImage);
+    return (alpha == kCGImageAlphaFirst ||
+            alpha == kCGImageAlphaLast ||
+            alpha == kCGImageAlphaPremultipliedFirst ||
+            alpha == kCGImageAlphaPremultipliedLast);
+}
+
+#pragma mark - 获得灰度图
++ (UIImage*)covertToGrayImageFromImage:(UIImage *)sourceImage
+{
+    int width = sourceImage.size.width;
+    int height = sourceImage.size.height;
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
+    CGContextRef context = CGBitmapContextCreate (nil,width,height,8,0,colorSpace,kCGImageAlphaNone);
+    CGColorSpaceRelease(colorSpace);
+    
+    if (context == NULL) return nil;
+    
+    CGContextDrawImage(context,CGRectMake(0, 0, width, height), sourceImage.CGImage);
+    CGImageRef contextRef = CGBitmapContextCreateImage(context);
+    UIImage *grayImage = [UIImage imageWithCGImage:contextRef];
+    CGContextRelease(context);
+    CGImageRelease(contextRef);
+    
+    return grayImage;
+}
+
+#pragma mark - 根据bundle中的文件名读取图片
+
++ (UIImage *)imageWithFileName:(NSString *)name {
+    NSString *extension = @"png";
+    
+    NSArray *components = [name componentsSeparatedByString:@"."];
+    if ([components count] >= 2)
+    {
+        NSUInteger lastIndex = components.count - 1;
+        extension = [components objectAtIndex:lastIndex];
+        
+        name = [name substringToIndex:(name.length-(extension.length+1))];
+    }
+    
+    // 如果为Retina屏幕且存在对应图片，则返回Retina图片，否则查找普通图片
+    if ([UIScreen mainScreen].scale == 2.0) {
+        name = [name stringByAppendingString:@"@2x"];
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:extension];
+        if (path != nil) {
+            return [UIImage imageWithContentsOfFile:path];
+        }
+    }
+    
+    if ([UIScreen mainScreen].scale == 3.0) {
+        name = [name stringByAppendingString:@"@3x"];
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:extension];
+        if (path != nil) {
+            return [UIImage imageWithContentsOfFile:path];
+        }
+    }
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:extension];
+    if (path) {
+        return [UIImage imageWithContentsOfFile:path];
+    }
+    
+    return nil;
+}
+
+#pragma mark - 画水印
+// 画水印
+- (UIImage *) setImage:(UIImage *)image withWaterMark:(UIImage *)mark inRect:(CGRect)rect
+{
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.0)
+    {
+        UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0.0);
+    }
+    //原图
+    [image drawInRect:view.bounds];
+    //水印图
+    [mark drawInRect:rect];
+    UIImage *newPic = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newPic;
+}
+
+//画文字
+- (void)drawTextInRect:(CGRect)rect
+{
+    CGRect textRect = [label textRectForBounds:rect limitedToNumberOfLines:label.numberOfLines];
+    [label drawTextInRect:textRect];
+}
+
+#pragma mark - 获取图片大小
+-(void)imageSize
+{
+    CGFloat imageWidth = image.size.width;
+    CGFloat imageHeight = imageWidth * image.scale;
+}
+
+#pragma mark - UIImage和base64互转
+// view分类方法
+- (NSString *)encodeToBase64String:(UIImage *)image
+{
+    return [UIImagePNGRepresentation(image) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+}
+
+- (UIImage *)decodeBase64ToImage:(NSString *)strEncodeData
+{
+    NSData *data = [[NSData alloc]initWithBase64EncodedString:strEncodeData options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return [UIImage imageWithData:data];
+}
+
+#pragma mark - 将一个image保存在相册中
+-(void)saveImageInPhotos
+{
+    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+
+    //或者
+    //#import <Photos/Photos.h>
+//        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+//            PHAssetChangeRequest *changeRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+//            changeRequest.creationDate          = [NSDate date];
+//        } completionHandler:^(BOOL success, NSError *error) {
+//            if (success) {
+//                NSLog(@"successfully saved");
+//            }
+//            else {
+//                NSLog(@"error saving to photos: %@", error);
+//            }
+//        }];
+}
+
+#pragma mark - 关于图片拉伸
+//推荐看这个博客，讲的很详细：http://blog.csdn.net/q199109106q/article/details/8615661
+
+#pragma mark - 上传图片太大，压缩图片
+-(UIImage *)resizeImage:(UIImage *)image
+{
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    float maxHeight = 300.0;
+    float maxWidth = 400.0;
+    float imgRatio = actualWidth/actualHeight;
+    float maxRatio = maxWidth/maxHeight;
+    float compressionQuality = 0.5;//50 percent compression
+    
+    if (actualHeight > maxHeight || actualWidth > maxWidth)
+    {
+        if(imgRatio < maxRatio)
+        {
+            //adjust width according to maxHeight
+            imgRatio = maxHeight / actualHeight;
+            actualWidth = imgRatio * actualWidth;
+            actualHeight = maxHeight;
+        }
+        else if(imgRatio > maxRatio)
+        {
+            //adjust height according to maxWidth
+            imgRatio = maxWidth / actualWidth;
+            actualHeight = imgRatio * actualHeight;
+            actualWidth = maxWidth;
+        }
+        else
+        {
+            actualHeight = maxHeight;
+            actualWidth = maxWidth;
+        }
+    }
+    
+    CGRect rect = CGRectMake(0.0, 0.0, actualWidth, actualHeight);
+    UIGraphicsBeginImageContext(rect.size);
+    [image drawInRect:rect];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    NSData *imageData = UIImageJPEGRepresentation(img, compressionQuality);
+    UIGraphicsEndImageContext();
+    
+    return [UIImage imageWithData:imageData];
+    
+}
+
+#pragma mark - 颜色生成图片
+
++ (UIImage *)cl_imageWithColor:(UIColor *)color
+{
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
+
+#pragma mark - 判断图片类型
+//通过图片Data数据第一个字节 来获取图片扩展名
+- (NSString *)contentTypeForImageData:(NSData *)data
+{
+    uint8_t c;
+    [data getBytes:&c length:1];
+    switch (c)
+    {
+        case 0xFF:
+            return @"jpeg";
+            
+        case 0x89:
+            return @"png";
+            
+        case 0x47:
+            return @"gif";
+            
+        case 0x49:
+        case 0x4D:
+            return @"tiff";
+            
+        case 0x52:
+            if ([data length] < 12) {
+                return nil;
+            }
+            
+            NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
+            if ([testString hasPrefix:@"RIFF"]
+                && [testString hasSuffix:@"WEBP"])
+            {
+                return @"webp";
+            }
+            
+            return nil;
+    }
+    return nil;
+}
+
+#pragma mark - 合并两个图片
++ (UIImage*)mergeImage:(UIImage*)firstImage withImage:(UIImage*)secondImage
+{
+    CGImageRef firstImageRef = firstImage.CGImage;
+    CGFloat firstWidth = CGImageGetWidth(firstImageRef);
+    CGFloat firstHeight = CGImageGetHeight(firstImageRef);
+    CGImageRef secondImageRef = secondImage.CGImage;
+    CGFloat secondWidth = CGImageGetWidth(secondImageRef);
+    CGFloat secondHeight = CGImageGetHeight(secondImageRef);
+    CGSize mergedSize = CGSizeMake(MAX(firstWidth, secondWidth), MAX(firstHeight, secondHeight));
+    UIGraphicsBeginImageContext(mergedSize);
+    [firstImage drawInRect:CGRectMake(0, 0, firstWidth, firstHeight)];
+    [secondImage drawInRect:CGRectMake(0, 0, secondWidth, secondHeight)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
+#pragma mark - 加载原始图片
++ (UIImage *)imageWithOriginalName:(NSString *)imageName{
+    UIImage *image = [UIImage imageNamed:imageName];
+    return [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+}
+
+#pragma mark - 加载.9切片
++ (UIImage *)imageWithStretchableName:(NSString *)imageName{
+    UIImage *image = [UIImage imageNamed:imageName];
+    return [image stretchableImageWithLeftCapWidth:image.size.width * 0.5 topCapHeight:image.size.height * 0.5];
+}
+
+#pragma mark - 渲染图片
+-(UIImage*)tintedImage:(UIImage *)image WithColor:(UIColor*)color rect:(CGRect)rect level:(CGFloat)level
+{
+    CGRect imageRect = CGRectMake(0.0f, 0.0f, image.size.width, image.size.height);
+    
+    UIGraphicsBeginImageContextWithOptions(imageRect.size, NO, image.scale);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    [image drawInRect:imageRect];
+    
+    CGContextSetFillColorWithColor(ctx, [color CGColor]);
+    CGContextSetAlpha(ctx, level);
+    CGContextSetBlendMode(ctx, kCGBlendModeSourceAtop);
+    CGContextFillRect(ctx, rect);
+    
+    CGImageRef imageRef = CGBitmapContextCreateImage(ctx);
+    UIImage *darkImage = [UIImage imageWithCGImage:imageRef
+                                             scale:image.scale
+                                       orientation:image.imageOrientation];
+    CGImageRelease(imageRef);
+    
+    UIGraphicsEndImageContext();
+    
+    return darkImage;
+}
+
+//按比例缩放,size 是你要把图显示到 多大区域 CGSizeMake(300, 140)
++ (UIImage *) imageCompressForSize:(UIImage *)sourceImage targetSize:(CGSize)size{
+    
+    UIImage *newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = size.width;
+    CGFloat targetHeight = size.height;
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0, 0.0);
+    
+    if(CGSizeEqualToSize(imageSize, size) == NO){
+        
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        if(widthFactor > heightFactor){
+            scaleFactor = widthFactor;
+            
+        }
+        else{
+            
+            scaleFactor = heightFactor;
+        }
+        scaledWidth = width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        
+        if(widthFactor > heightFactor){
+            
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
+        }else if(widthFactor < heightFactor){
+            
+            thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+        }
+    }
+    
+    UIGraphicsBeginImageContext(size);
+    
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width = scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    if(newImage == nil){
+        NSLog(@"scale image fail");
+    }
+    
+    UIGraphicsEndImageContext();
+    return newImage;
+}
 
 
-
-
-
-
-
-
-
-
+//指定宽度按比例缩放
++ (UIImage *) imageCompressForWidth:(UIImage *)sourceImage targetWidth:(CGFloat)defineWidth{
+    
+    UIImage *newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = defineWidth;
+    CGFloat targetHeight = height / (width / targetWidth);
+    CGSize size = CGSizeMake(targetWidth, targetHeight);
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0, 0.0);
+    
+    if(CGSizeEqualToSize(imageSize, size) == NO){
+        
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        if(widthFactor > heightFactor){
+            scaleFactor = widthFactor;
+        }
+        else{
+            scaleFactor = heightFactor;
+        }
+        scaledWidth = width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        
+        if(widthFactor > heightFactor){
+            
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
+            
+        }else if(widthFactor < heightFactor){
+            
+            thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+        }
+    }
+    
+    UIGraphicsBeginImageContext(size);
+    
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width = scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    if(newImage == nil){
+        
+        NSLog(@"scale image fail");
+    }
+    UIGraphicsEndImageContext();
+    return newImage;
+}
 
 
 
