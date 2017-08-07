@@ -1034,20 +1034,375 @@ UIImage * image;
 }
 
 
+#pragma mark - ************ CGRect/CGSize/CGPoint ************
+CGRect rect1, rect2, rect;
+CGSize size1, size2, size;
+CGPoint point1, point2, point;
+
+#pragma mark - 比较两个CGRect/CGSize/CGPoint是否相等
+-(void)compareTwoCGRectCGSizeCGPoint
+{
+    if (CGRectEqualToRect(rect1, rect2)) { // 两个区域相等
+        // do some
+    }
+    if (CGPointEqualToPoint(point1, point2)) { // 两个点相等
+        // do some
+    }
+    if (CGSizeEqualToSize(size1, size2)) { // 两个size相等
+        // do some
+    }
+}
+
+#pragma mark - 检查一个rect是否包含一个point
+-(BOOL)pointInRect
+{
+    // point是否在rect内
+    return CGRectContainsPoint(rect, point);
+}
+
+#pragma mark - 判断两个rect是否有交叉
+-(void)rectIntersectsRect
+{
+    if (CGRectIntersectsRect(rect1, rect2)){}
+}
+
+
+#pragma mark - ************ NSDate ************
+NSDate * date;
+NSDate * date1;
+NSDate * date2;
+
+#pragma mark - 比较两个NSDate相差多少小时
+-(void)compareTwoDateByHour
+{
+    NSTimeInterval distanceBetweenDates = [date1 timeIntervalSinceDate:date2];
+    double secondsInAnHour = 3600;
+    // 除以3600是把秒化成小时，除以60得到结果为相差的分钟数
+    NSInteger hoursBetweenDates = distanceBetweenDates / secondsInAnHour;
+}
+
+#pragma mark - 判断NSDate是不是今天
+-(void)dateIsToday
+{
+    NSDateComponents *otherDay = [[NSCalendar currentCalendar] components:NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:date];
+    NSDateComponents *today = [[NSCalendar currentCalendar] components:NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:[NSDate date]];
+    if([today day] == [otherDay day] &&
+       [today month] == [otherDay month] &&
+       [today year] == [otherDay year] &&
+       [today era] == [otherDay era]) {
+        // 是今天
+    }
+}
+
+#pragma mark - 比较NSDate和当前时间谁大
+/************
+ 日期格式请传入：2013-08-05 12:12:12；如果修改日期格式，比如：2013-08-05，则将[df setDateFormat:@"yyyy-MM-dd HH:mm:ss"];修改为[df setDateFormat:@"yyyy-MM-dd"];
+ ***********/
+-(int)compareDateByNow:(NSString*)date
+{
+    
+    int ci = 0;
+    NSDateFormatter *df = [[NSDateFormatter alloc]init];
+    [df setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSDate *dt1 = [[NSDate alloc]init];
+    NSDate *dt2 = [[NSDate alloc]init];
+    dt1 = [df dateFromString:date];
+    dt2 = [NSDate date];
+    NSComparisonResult result = [dt1 compare:dt2];
+    switch (result)
+    {
+            //现在比传入大 已过期
+        case NSOrderedAscending: ci=1;break;
+            //现在比传入小 未过期
+        case NSOrderedDescending: ci=-1;break;
+            //现在=传入
+        case NSOrderedSame: ci=0;break;
+        default: NSLog(@"erorr dates %@, %@", dt2, dt1);break;
+    }
+    return ci;
+}
+
+
+#pragma mark - ************ NSString ************
+NSString * string;
+NSString * str;
+NSString * str1;
+NSString * str2;
+
+#pragma mark - 字符串是否为空
++ (BOOL)isEqualToNil:(NSString *)str
+{
+    return str.length <= 0 || [str isEqualToString:@""] || !str;
+}
+
+#pragma mark - 判断一个字符串是否为数字
+-(void)stringIsNumber
+{
+    NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    if ([string rangeOfCharacterFromSet:notDigits].location == NSNotFound)
+    {
+        // 是数字
+    } else
+    {
+        // 不是数字
+    }
+}
+
+#pragma mark - 判断一个字符串是否包含另一个字符串
+-(void)stringContainsString
+{
+    // 方法一、这种方法只适用于iOS8之后，如果是配iOS8之前用方法二
+    if ([str containsString:string]) NSLog(@"包含");
+    
+    // 方法二
+    NSRange range = [str rangeOfString:string];
+    if (range.location != NSNotFound) NSLog(@"包含");
+    
+    // 方法1
+    if ([str1 containsString:str2]) {
+        NSLog(@"str1包含str2");
+    } else {
+        NSLog(@"str1不包含str2");
+    }
+    
+    // 方法2
+    if ([str1 rangeOfString: str2].location == NSNotFound) {
+        NSLog(@"str1不包含str2");
+    } else {
+        NSLog(@"str1包含str2");
+    }
+}
+
+#pragma mark - 处理字符串，使其首字母大写
+-(void)BigFitstChar
+{
+    NSString *str = @"abcdefghijklmn";
+    NSString *resultStr;
+    if (str && str.length > 0) {
+        resultStr = [str stringByReplacingCharactersInRange:NSMakeRange(0,1) withString:[[str substringToIndex:1] capitalizedString]];
+    }
+    NSLog(@"%@", resultStr);
+}
+
+#pragma mark - 获取字符串中的数字
+
+- (NSString *)getNumberFromStr:(NSString *)str
+{
+    NSCharacterSet *nonDigitCharacterSet = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    return [[str componentsSeparatedByCharactersInSet:nonDigitCharacterSet] componentsJoinedByString:@""];
+}
+//NSLog(@"%@", [self getNumberFromStr:@"a0b0c1d2e3f4fda8fa8fad9fsad23"]); // 00123488923
+
+#pragma mark - 移除字符串中的空格和换行
++ (NSString *)removeSpaceAndNewline:(NSString *)str
+{
+    NSString *temp = [str stringByReplacingOccurrencesOfString:@" " withString:@""];
+    temp = [temp stringByReplacingOccurrencesOfString:@"\r" withString:@""];
+    temp = [temp stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    return temp;
+}
+
+#pragma mark - 判断字符串中是否有空格
++ (BOOL)isBlank:(NSString *)str
+{
+    NSRange _range = [str rangeOfString:@" "];
+    if (_range.location != NSNotFound) {
+        //有空格
+        return YES;
+    } else {
+        //没有空格
+        return NO;
+    }
+}
+
+#pragma mark - 报错 : Attempt to mutate immutable object with insertString:atIndex:
+//这个错是因为你拿字符串调用insertString:atIndex:方法的时候，调用对象不是NSMutableString，应该先转成这个类型再调用
 
 
 
+#pragma mark - ************ UIViewController ************
+UIViewController * viewController;
+UIViewController * VC;
+
+#pragma mark - 拿到当前正在显示的控制器，不管是push进去的，还是present进去的都能拿到
+//用于获取应用当前活跃的 VC 的方法
++ (UIViewController *)getcurrentViewController{
+    UIViewController *result = nil;
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    if (window.windowLevel != UIWindowLevelNormal) {
+        NSArray *windows = [UIApplication sharedApplication].windows;
+        for (UIWindow *tmpWin  in windows) {
+            if (tmpWin.windowLevel == UIWindowLevelNormal) {
+                window = tmpWin;
+                break;
+            }
+        }
+    }
+    UIView *frontView = [[window subviews] objectAtIndex:0];
+    id nextResponder = [frontView nextResponder];
+    if ([nextResponder isKindOfClass:[UIViewController class]]) {
+        result = nextResponder;
+    }else{
+        result = window.rootViewController;
+    }
+    return result;
+}
+
+#pragma mark - [ViewController aMethod:]: unrecognized selector sent to instance 0x7fe91e607fb0
+//这是一个经典错误，ViewController不能响应aMethod这个方法，错误原因可能viewController文件中没有实现aMethod这个方法
 
 
 
+#pragma mark - ************ UINavigationController ************
+UINavigationController * navigationController;
+
+#pragma mark - 设置navigationBar上的title颜色和大小
+-(void)navigationBarTitle
+{
+    [navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor greenColor], NSFontAttributeName : [UIFont systemFontOfSize:15]}];
+}
+
+#pragma mark - 从导航控制器中删除某个控制器
+-(void)removeViewControllerFromNavigationController
+{
+    // 方法一、知道这个控制器所处的导航控制器下标
+    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: navigationController.viewControllers];
+    [navigationArray removeObjectAtIndex: 2];
+    navigationController.viewControllers = navigationArray;
+    
+    // 方法二、知道具体是哪个控制器
+    NSArray* tempVCA = [navigationController viewControllers];
+    for(UIViewController *tempVC in tempVCA)
+    {
+        if([tempVC isKindOfClass:[UIViewController class]])
+        {
+            [tempVC removeFromParentViewController];
+        }
+    }
+}
+
+#pragma mark - 禁用系统滑动返回功能
+/*
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {self.navigationController.interactivePopGestureRecognizer.delegate = self;
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {self.navigationController.interactivePopGestureRecognizer.delegate = nil;
+    }
+}
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    return NO;
+}
+*/
+
+#pragma mark - 获取当前导航控制器下前一个控制器
+- (UIViewController *)backViewController
+{
+    NSInteger myIndex = [navigationController.viewControllers indexOfObject:self];
+    
+    if ( myIndex != 0 && myIndex != NSNotFound ) {
+        return [navigationController.viewControllers objectAtIndex:myIndex-1];
+    } else {
+        return nil;
+    }
+}
+
+#pragma mark - 让导航控制器pop回指定的控制器
+-(void)popToVC{
+    NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray:[navigationController viewControllers]];
+    for (UIViewController *aViewController in allViewControllers) {
+        if ([aViewController isKindOfClass:[UIViewController class]]) {
+            [navigationController popToViewController:aViewController animated:NO];
+        }
+    }
+}
+
+#pragma mark - 页面跳转实现翻转动画
+-(void)jumpAnimation
+{
+    // modal方式
+    UIViewController *vc1 = [[UIViewController alloc] init];
+    vc1.view.backgroundColor = [UIColor redColor];
+    vc1.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    [viewController presentViewController:vc1 animated:YES completion:nil];
+
+    // push方式
+    UIViewController *vc2 = [[UIViewController alloc] init];
+    vc2.view.backgroundColor = [UIColor redColor];
+    [UIView beginAnimations:@"View Flip" context:nil];
+    [UIView setAnimationDuration:0.80];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+    [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:navigationController.view cache:NO];
+    [navigationController pushViewController:vc2 animated:YES];
+    [UIView commitAnimations];
+}
+
+#pragma mark - 让push跳转动画像modal跳转动画那样效果(从下往上推上来)
+- (void)push
+{
+    UIViewController *vc = [[UIViewController alloc] init];
+    vc.view.backgroundColor = [UIColor redColor];
+    CATransition* transition = [CATransition animation];
+    transition.duration = 0.4f;
+    transition.type = kCATransitionMoveIn;
+    transition.subtype = kCATransitionFromTop;
+    [navigationController.view.layer addAnimation:transition forKey:kCATransition];
+    [navigationController pushViewController:vc animated:NO];
+}
+
+- (void)pop
+{
+    CATransition* transition = [CATransition animation];
+    transition.duration = 0.4f;
+    transition.type = kCATransitionReveal;
+    transition.subtype = kCATransitionFromBottom;
+    [navigationController.view.layer addAnimation:transition forKey:kCATransition];
+    [navigationController popViewControllerAnimated:NO];
+}
+
+#pragma mark - 设置下个页面的返回按钮的文字
+-(void)insertNextVCBackButton
+{
+    UIBarButtonItem *temporaryBarButtonItem = [[UIBarButtonItem alloc] init];
+    temporaryBarButtonItem.title = @"返回";
+    //self.navigationItem.backBarButtonItem = temporaryBarButtonItem;
+    viewController.navigationItem.backBarButtonItem = temporaryBarButtonItem;
+}
+
+#pragma mark - 设置系统导航栏左右按钮颜色
+-(void)insertNavigationBarTintColor
+{
+    [[UINavigationBar appearance] setTintColor:[UIColor blackColor]];
+}
 
 
 
+#pragma mark - ************ UIApplication ************
 
-
-
-
-
+#pragma mark - 通知监听APP生命周期
+/*
+UIApplicationDidEnterBackgroundNotification 应用程序进入后台
+UIApplicationWillEnterForegroundNotification 应用程序将要进入前台
+UIApplicationDidFinishLaunchingNotification 应用程序完成启动
+UIApplicationDidFinishLaunchingNotification 应用程序由挂起变的活跃
+UIApplicationWillResignActiveNotification 应用程序挂起(有电话进来或者锁屏)
+UIApplicationDidReceiveMemoryWarningNotification 应用程序收到内存警告
+UIApplicationDidReceiveMemoryWarningNotification 应用程序终止(后台杀死、手机关机等)
+UIApplicationSignificantTimeChangeNotification 当有重大时间改变(凌晨0点，设备时间被修改，时区改变等)
+UIApplicationWillChangeStatusBarOrientationNotification 设备方向将要改变
+UIApplicationDidChangeStatusBarOrientationNotification 设备方向改变
+UIApplicationWillChangeStatusBarFrameNotification 设备状态栏frame将要改变
+UIApplicationDidChangeStatusBarFrameNotification 设备状态栏frame改变
+UIApplicationBackgroundRefreshStatusDidChangeNotification 应用程序在后台下载内容的状态发生变化
+UIApplicationProtectedDataWillBecomeUnavailable 本地受保护的文件被锁定,无法访问
+UIApplicationProtectedDataWillBecomeUnavailable 本地受保护的文件可用了
+*/
 
 
 
